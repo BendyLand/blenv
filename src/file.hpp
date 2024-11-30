@@ -1,11 +1,8 @@
 #pragma once
 
 #include "utils.hpp"
-#include <regex>
 
 using hex = unsigned char;
-
-std::vector<hex> parse_contents(const std::string& contents);
 
 class File
 {
