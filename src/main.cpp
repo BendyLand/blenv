@@ -9,8 +9,7 @@ int main()
         File test(name);
         std::cout << "Name: " << test.name << std::endl;
         std::cout << "Path: " << test.path << std::endl;
-        std::cout << "Contents:" << std::endl;
-        std::cout << join(test.contents, "") << std::endl;
+        std::cout << "Contents: " << test.contents << std::endl;
         std::cout << "Size: " << test.size << std::endl << std::endl;
     }
 

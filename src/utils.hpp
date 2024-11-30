@@ -2,13 +2,22 @@
 
 #include <vector>
 #include <iostream>
-#include<string>
+#include <string>
 #include <filesystem>
+#include <fstream>
+#include "os.hpp"
 
 namespace fs = std::filesystem;
 
+using hex = unsigned char;
+
 std::vector<std::string> split(const std::string& str, char delim);
 void walk_dir(const fs::path& dir_path, std::vector<std::string>& file_names);
+std::string ltrim(const std::string& text);
+std::string rtrim(const std::string& text);
+std::string trim(const std::string& text);
+void extract_path_and_name(const std::string& full_path, std::string& path, std::string& name);
+std::vector<hex> read_file_as_hex(const std::string& file_path, size_t& file_size);
 
 template <typename T>
 inline std::string join(const std::vector<T>& vec, const std::string& delim) 
@@ -20,4 +29,14 @@ inline std::string join(const std::vector<T>& vec, const std::string& delim)
         if (i < size-1) result += delim;
     }
     return result;
+}
+
+template <typename T>
+inline std::ostream& operator<<(std::ostream& os, const std::vector<T> vec)
+{
+    for (T item : vec) {
+        std::cout << item << " ";
+    }
+    std::cout << std::endl;
+    return os;
 }
