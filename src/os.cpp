@@ -83,8 +83,6 @@ std::pair<int, std::string> OS::run_command_unix(const std::vector<std::string>&
     }
 }
 
-
-
 std::pair<int, std::string> OS::run_command(std::string& arg) 
 {
     std::pair<int, std::string> result;

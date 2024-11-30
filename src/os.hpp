@@ -6,6 +6,7 @@
 #include <string>
 #include <cstring>
 #include <sys/wait.h>  // for waitpid
+#include "utils.hpp"
 
 #if defined(_WIN32) || defined(_WIN64)
     #define OS_WINDOWS
@@ -43,5 +44,3 @@ public:
 private: 
     static std::pair<int, std::string> run_command_unix(const std::vector<std::string>& args);
 };
-
-std::vector<std::string> split(std::string str, char delim);

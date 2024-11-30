@@ -10,10 +10,7 @@ int main()
         std::cout << "Name: " << test.name << std::endl;
         std::cout << "Path: " << test.path << std::endl;
         std::cout << "Contents:" << std::endl;
-        for (auto c : test.contents) {
-            std::cout << c;
-        }
-        std::cout << std::endl;
+        std::cout << join(test.contents, "") << std::endl;
         std::cout << "Size: " << test.size << std::endl << std::endl;
     }
 
