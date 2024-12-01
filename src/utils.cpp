@@ -1,4 +1,5 @@
 #include "utils.hpp"
+#include "os.hpp"
 
 using hex = unsigned char;
 
@@ -43,20 +44,6 @@ std::vector<std::string> split(const std::string& str, char delim)
     }
     if (temp.size() > 0) result.push_back(temp);
     return result;
-}
-
-void walk_dir(const fs::path& dir_path, std::vector<std::string>& file_names) 
-{
-    if (!fs::exists(dir_path) || !fs::is_directory(dir_path)) {
-        std::cerr << "Invalid directory: " << dir_path << "\n";
-        return;
-    }
-    for (const auto& entry : fs::directory_iterator(dir_path)) {
-        file_names.emplace_back(entry.path().string());
-        if (fs::is_directory(entry)) {
-            walk_dir(entry, file_names); // Recursive call for subdirectory
-        }
-    }
 }
 
 std::vector<hex> read_file_as_hex(const std::string& file_path, size_t& file_size) 

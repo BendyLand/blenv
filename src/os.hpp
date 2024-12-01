@@ -6,7 +6,6 @@
 #include <string>
 #include <cstring>
 #include <sys/wait.h>  // for waitpid
-#include "utils.hpp"
 
 #if defined(_WIN32) || defined(_WIN64)
     #define OS_WINDOWS

@@ -1,4 +1,5 @@
 #include "os.hpp"
+#include "utils.hpp"
 
 std::string OS::detect_os() 
 {
