@@ -4,7 +4,7 @@
 std::string OS::detect_os() 
 {
     std::string result;
-    #if defined(OS_WINDOWS)
+    #if OS_WINDOWS_DEFINED
         result = "Windows";
     #elif defined(OS_MACOS)
         result = "MacOS";
@@ -20,7 +20,7 @@ std::string OS::detect_os()
     return result;
 }
 
-#if defined(OS_UNIX_LIKE)
+#if OS_UNIX_LIKE_DEFINED
 std::pair<int, std::string> OS::run_command_unix(const std::vector<std::string>& args) 
 {
     // Convert std::vector<std::string> to an array of char* required by execvp
@@ -85,7 +85,7 @@ std::pair<int, std::string> OS::run_command(std::string& arg)
 {
     std::pair<int, std::string> result;
     std::vector<std::string> args = split(arg, ' ');
-    #if defined(OS_UNIX_LIKE)
+    #if OS_UNIX_LIKE_DEFINED
         result = OS::run_command_unix(args);
     #else
         result = OS::run_command_windows(arg);
@@ -94,7 +94,7 @@ std::pair<int, std::string> OS::run_command(std::string& arg)
 }
 
 //todo: check this implementation
-#if defined(OS_WINDOWS)
+#if OS_WINDOWS_DEFINED
 static std::pair<int, std::string> OS::run_command_windows(const std::string& command) 
 {
     PROCESS_INFORMATION processInfo;

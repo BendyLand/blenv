@@ -9,5 +9,3 @@ A simple project bundler that squishes all of your project dependencies into a s
 The idea for the project came from the desire to have a very simple-to-use Docker alternative for times when I want to have a single executable, but the project relies on something external, like files to write to or read from. 
 
 It also just sounds like a really fun and potentially very useful project. 
-
-

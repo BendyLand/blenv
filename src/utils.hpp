@@ -34,7 +34,7 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<hex> vec)
     for (hex item : vec) {
         std::cout << item;
     }
-    std::cout << std::endl;
+    std::cout << std::endl << "EOF" << std::endl;
     return os;
 }
 
@@ -42,8 +42,7 @@ template <typename T>
 inline std::ostream& operator<<(std::ostream& os, const std::vector<T> vec)
 {
     for (T item : vec) {
-        std::cout << item << " ";
+        std::cout << item << std::endl;
     }
-    std::cout << std::endl;
     return os;
 }

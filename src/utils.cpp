@@ -65,7 +65,7 @@ void extract_path_and_name(const std::string& full_path, std::string& path, std:
 {
     size_t pos = full_path.find_last_of("/\\");
     if (pos == std::string::npos) {
-    #if defined(OS_UNIX_LIKE)
+    #if OS_UNIX_LIKE_DEFINED
         path = "./";
     #else
         path = ".\\";

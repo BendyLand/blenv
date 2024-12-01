@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils.hpp"
+#include "os.hpp"
 
 using hex = unsigned char;
 
@@ -21,7 +22,7 @@ public:
 inline std::ostream& operator<<(std::ostream& os, const File file)
 {
     std::string full_path;
-#if defined(OS_UNIX_LIKE)
+#if OS_UNIX_LIKE_DEFINED
     full_path = file.path + "/" + file.name;
 #else
     full_path = file.path + "\\" + file.name;

@@ -7,10 +7,12 @@
 class Directory
 {
 public:
+    // Fields
     std::string name;
     std::vector<File> files;
     std::vector<Directory> subdirs;
 
+    // Constructors
     Directory(const std::string& n) : name(n) {}
     Directory(const std::string& n, std::vector<File> f) 
         : name(n), files(f) 
@@ -29,11 +31,9 @@ inline std::ostream& operator<<(std::ostream& os, const Directory dir)
     for (File file : dir.files) {
         std::cout << file << std::endl;
     }
-
     std::cout << "Subdirectories:" << std::endl;
     for (Directory dir : dir.subdirs) {
         std::cout << dir << std::endl;
     }
-
     return os;
 }
