@@ -1,4 +1,5 @@
 #include "directory.hpp"
+#include "os.hpp"
 
 Directory walk_dir(const fs::path& dir_path) 
 {

@@ -14,8 +14,6 @@ std::vector<std::string> split(const std::string& str, char delim);
 std::string ltrim(const std::string& text);
 std::string rtrim(const std::string& text);
 std::string trim(const std::string& text);
-void extract_path_and_name(const std::string& full_path, std::string& path, std::string& name);
-std::vector<hex> read_file_as_hex(const std::string& file_path, size_t& file_size);
 
 template <typename T>
 inline std::string join(const std::vector<T>& vec, const std::string& delim) 

@@ -5,6 +5,9 @@
 
 using hex = unsigned char;
 
+void extract_path_and_name(const std::string& full_path, std::string& path, std::string& name);
+std::vector<hex> read_file_as_hex(const std::string& file_path, size_t& file_size);
+
 class File
 {
 public:
@@ -27,7 +30,7 @@ inline std::ostream& operator<<(std::ostream& os, const File file)
 #else
     full_path = file.path + "\\" + file.name;
 #endif
-    std::cout << "\nFile: " << full_path << " (" << file.size << ")" << std::endl;
+    std::cout << "File: " << full_path << " (" << file.size << ")" << std::endl;
     std::cout << "Contents:\n" << file.contents << std::endl;
 
     return os;
