@@ -1,15 +1,17 @@
 #pragma once
 
-#include <vector>
-#include <iostream>
-#include <string>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
+#include <string>
+#include <uuid/uuid.h>
+#include <vector>
 
 namespace fs = std::filesystem;
 
 using hex = unsigned char;
 
+std::string generate_uuid_v4();
 std::vector<std::string> split(const std::string& str, char delim);
 std::string ltrim(const std::string& text);
 std::string rtrim(const std::string& text);

@@ -3,6 +3,15 @@
 
 using hex = unsigned char;
 
+std::string generate_uuid_v4() 
+{
+    uuid_t uuid;
+    char uuidStr[37]; // UUID string representation
+    uuid_generate(uuid);
+    uuid_unparse(uuid, uuidStr);
+    return std::string(uuidStr);
+}
+
 std::string ltrim(const std::string& text)
 {
     size_t pos = text.find_first_not_of(" \r\n\t");
