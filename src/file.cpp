@@ -1,5 +1,27 @@
 #include "file.hpp"
 
+std::vector<std::string> get_mutable_files(int argc, char** argv)
+{
+    std::vector<std::string> result = {};
+    bool mut = false;
+    if (argc > 1) {
+        for (size_t i = 0; i < argc; i++) {
+            if (std::string(argv[i]) == "-m" || std::string(argv[i]) == "--mutable") {
+                mut = true;
+                continue;
+            }
+            if (mut) {
+                if (std::string(argv[i]).starts_with("-")) {
+                    mut = false;
+                    continue;
+                }
+                result.emplace_back(argv[i]);
+            }
+        }
+    }
+    return result;
+}
+
 std::vector<hex> read_file_as_hex(const std::string& file_path, size_t& file_size) 
 {
     std::ifstream file(file_path, std::ios::binary);

@@ -18,6 +18,15 @@ std::string rtrim(const std::string& text);
 std::string trim(const std::string& text);
 
 template <typename T>
+bool contains(const std::vector<T>& vec, const T& item) 
+{
+    for (T entry : vec) {
+        if (entry == item) return true;
+    }
+    return false;
+}
+
+template <typename T>
 inline std::string join(const std::vector<T>& vec, const std::string& delim) 
 {
     std::string result = "";

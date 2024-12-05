@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include "file.hpp"
+#include "os.hpp"
+#include "utils.hpp"
 
 class Directory
 {
@@ -22,7 +24,7 @@ public:
     {}
 };
 
-Directory walk_dir(const fs::path& dir_path);
+Directory walk_dir(const fs::path& dir_path, const std::vector<std::string>& mut_files);
 
 inline std::ostream& operator<<(std::ostream& os, const Directory dir)
 {
