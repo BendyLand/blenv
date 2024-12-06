@@ -1,10 +1,9 @@
 #include "os.hpp"
-#include "utils.hpp"
 
-std::string OS::detect_os() 
+std::string OS::detect_os()
 {
     std::string result;
-    #if OS_WINDOWS_DEFINED
+    #if defined(OS_WINDOWS)
         result = "Windows";
     #elif defined(OS_MACOS)
         result = "MacOS";
@@ -21,7 +20,7 @@ std::string OS::detect_os()
 }
 
 #if OS_UNIX_LIKE_DEFINED
-std::pair<int, std::string> OS::run_command_unix(const std::vector<std::string>& args) 
+std::pair<int, std::string> OS::run_command_unix(const std::vector<std::string>& args)
 {
     // Convert std::vector<std::string> to an array of char* required by execvp
     std::vector<char*> cargs;
@@ -39,7 +38,7 @@ std::pair<int, std::string> OS::run_command_unix(const std::vector<std::string>&
         // Error occurred during fork
         perror("fork failed");
         return {-1, ""};
-    } 
+    }
     else if (pid == 0) {
         // Child process: redirect stdout to the pipe
         close(pipefd[0]);  // Close unused read end
@@ -50,7 +49,7 @@ std::pair<int, std::string> OS::run_command_unix(const std::vector<std::string>&
         // execvp only returns if an error occurred
         perror("execvp failed");
         exit(EXIT_FAILURE);
-    } 
+    }
     else {
         // Parent process
         close(pipefd[1]);  // Close unused write end
@@ -73,19 +72,90 @@ std::pair<int, std::string> OS::run_command_unix(const std::vector<std::string>&
         // Return child's exit status and captured output
         if (WIFEXITED(status)) {
             return {WEXITSTATUS(status), output};  // Return exit code and output
-        } 
+        }
         else {
             return {-1, output};  // Child did not exit normally, return -1 with captured output
         }
     }
 }
+#elif OS_WINDOWS_DEFINED || !OS_UNIX_LIKE_DEFINED
+std::pair<int, std::string> OS::run_command_windows(const std::string& command)
+{
+    PROCESS_INFORMATION processInfo = {};
+    STARTUPINFO startupInfo = { sizeof(STARTUPINFO) };
+    SECURITY_ATTRIBUTES securityAttrs = { sizeof(SECURITY_ATTRIBUTES), NULL, TRUE };
+    HANDLE hRead = NULL, hWrite = NULL;
+
+    // Create pipe for capturing output
+    if (!CreatePipe(&hRead, &hWrite, &securityAttrs, 0)) {
+        return {-1, "Failed to create pipe"};
+    }
+
+    startupInfo.hStdOutput = hWrite;
+    startupInfo.hStdError = hWrite;
+    startupInfo.dwFlags |= STARTF_USESTDHANDLES;
+
+    // Use cmd.exe to execute the command
+    std::string fullCommand = "cmd.exe /C " + command;
+
+    // Create a modifiable command string
+    char commandBuffer[2048];
+    strncpy(commandBuffer, fullCommand.c_str(), sizeof(commandBuffer) - 1);
+    commandBuffer[sizeof(commandBuffer) - 1] = '\0';
+
+    // Execute command
+    if (!CreateProcess(
+            NULL,               // Application name
+            commandBuffer,      // Command line
+            NULL,               // Process security attributes
+            NULL,               // Thread security attributes
+            TRUE,               // Inherit handles
+            0,                  // Creation flags
+            NULL,               // Environment
+            NULL,               // Current directory
+            &startupInfo,       // Startup info
+            &processInfo))      // Process info
+    {
+        CloseHandle(hRead);
+        CloseHandle(hWrite);
+        DWORD error = GetLastError();
+        return {-1, "Failed to create process. Error code: " + std::to_string(error)};
+    }
+
+    // Close the write end of the pipe in the parent process
+    CloseHandle(hWrite);
+
+    // Wait for the process to complete and read the output
+    WaitForSingleObject(processInfo.hProcess, INFINITE);
+
+    char buffer[128];
+    std::string output;
+    DWORD bytesRead;
+    while (ReadFile(hRead, buffer, sizeof(buffer) - 1, &bytesRead, NULL) && bytesRead > 0) {
+        buffer[bytesRead] = '\0'; // Null-terminate
+        output += buffer;
+    }
+    CloseHandle(hRead);
+
+    // Get the exit code of the process
+    DWORD exitCode = 0;
+    if (!GetExitCodeProcess(processInfo.hProcess, &exitCode)) {
+        exitCode = -1; // Error retrieving exit code
+    }
+
+    // Clean up handles
+    CloseHandle(processInfo.hProcess);
+    CloseHandle(processInfo.hThread);
+
+    return {static_cast<int>(exitCode), output};
+}
 #endif
 
-std::pair<int, std::string> OS::run_command(std::string& arg) 
+std::pair<int, std::string> OS::run_command(std::string& arg)
 {
     std::pair<int, std::string> result;
     std::vector<std::string> args = split(arg, ' ');
-    #if OS_UNIX_LIKE_DEFINED
+    #if defined(OS_UNIX_LIKE)
         result = OS::run_command_unix(args);
     #else
         result = OS::run_command_windows(arg);
@@ -93,40 +163,18 @@ std::pair<int, std::string> OS::run_command(std::string& arg)
     return result;
 }
 
-//todo: check this implementation
-#if OS_WINDOWS_DEFINED
-static std::pair<int, std::string> OS::run_command_windows(const std::string& command) 
+std::vector<std::string> split(std::string str, char delim)
 {
-    PROCESS_INFORMATION processInfo;
-    STARTUPINFO startupInfo = { sizeof(startupInfo) };
-    SECURITY_ATTRIBUTES securityAttrs = { sizeof(securityAttrs), NULL, TRUE };
-    HANDLE hRead, hWrite;
-    // Create pipe for capturing output
-    CreatePipe(&hRead, &hWrite, &securityAttrs, 0);
-    startupInfo.hStdOutput = hWrite;
-    startupInfo.hStdError = hWrite;
-    startupInfo.dwFlags |= STARTF_USESTDHANDLES;
-    // Execute command
-    if (!CreateProcess(NULL, const_cast<char*>(command.c_str()), NULL, NULL, TRUE, 0, NULL, NULL, &startupInfo, &processInfo)) {
-        return {-1, "Failed to create process"};
+    std::vector<std::string> result;
+    std::string temp = "";
+    for (char c : str) {
+        if (c == delim) {
+            result.push_back(temp);
+            temp = "";
+            continue;
+        }
+        temp += c;
     }
-    // Wait for process to complete and capture output
-    WaitForSingleObject(processInfo.hProcess, INFINITE);
-    CloseHandle(hWrite);
-    // Read pipe output
-    char buffer[128];
-    std::string output;
-    DWORD bytesRead;
-    while (ReadFile(hRead, buffer, sizeof(buffer) - 1, &bytesRead, NULL) && bytesRead > 0) {
-        buffer[bytesRead] = '\0';
-        output += buffer;
-    }
-    CloseHandle(hRead);
-    // Get exit code
-    DWORD exitCode;
-    GetExitCodeProcess(processInfo.hProcess, &exitCode);
-    CloseHandle(processInfo.hProcess);
-    CloseHandle(processInfo.hThread);
-    return {exitCode, output};
+    if (temp.size() > 0) result.push_back(temp);
+    return result;
 }
-#endif

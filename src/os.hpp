@@ -2,12 +2,10 @@
 
 #include <iostream>
 #include <vector>
-#include <unistd.h>
 #include <string>
 #include <cstring>
-#include <sys/wait.h>  // for waitpid
 
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN32) || defined(_WIN64) || defined(__MINGW32__) || defined(__CYGWIN__)
     #define OS_WINDOWS
 #elif defined(__APPLE__) || defined(__MACH__)
     #define OS_MACOS
@@ -27,20 +25,30 @@
 #endif
 
 #if defined(OS_MACOS) || defined(OS_LINUX) || defined(OS_UNIX) || defined(OS_FREEBSD)
+    #include <unistd.h>
+    #include <sys/wait.h>  // for waitpid
     #define OS_UNIX_LIKE
-#endif 
+#endif
 
 #if defined(OS_WINDOWS)
-    #define WIN32_LEAN_AND_MEAN 
+    #define WIN32_LEAN_AND_MEAN
     #include <Windows.h>
 #endif
 
 #ifndef OS_UNIX_LIKE_DEFINED
-    #define OS_UNIX_LIKE_DEFINED defined(OS_UNIX_LIKE)
+    #if defined(OS_UNIX_LIKE)
+         #define OS_UNIX_LIKE_DEFINED 1
+    #else
+         #define OS_UNIX_LIKE_DEFINED 0
+    #endif
 #endif
 
 #ifndef OS_WINDOWS_DEFINED
-    #define OS_WINDOWS_DEFINED defined(OS_WINDOWS)
+    #if defined(OS_WINDOWS)
+         #define OS_WINDOWS_DEFINED 1
+    #else
+         #define OS_WINDOWS_DEFINED 0
+    #endif
 #endif
 
 class OS
@@ -48,7 +56,9 @@ class OS
 public:
     static std::string detect_os();
     static std::pair<int, std::string> run_command(std::string& args);
-private: 
+private:
     static std::pair<int, std::string> run_command_unix(const std::vector<std::string>& args);
     static std::pair<int, std::string> run_command_windows(const std::string& command);
 };
+
+std::vector<std::string> split(std::string str, char delim);
