@@ -26,16 +26,34 @@ public:
 
 Directory walk_dir(const fs::path& dir_path, const std::vector<std::string>& mut_files);
 
-inline std::ostream& operator<<(std::ostream& os, const Directory dir)
+inline void collect_files(const Directory& dir, std::vector<File>& immutable_files, std::vector<File>& mutable_files)
 {
-    std::cout << "Directory: " << dir.name << std::endl;
-    std::cout << "Files:" << std::endl;
-    for (File file : dir.files) {
-        std::cout << file << std::endl;
+    // Collect files from the current directory
+    for (const auto& file : dir.files) {
+        if (file.is_mutable) mutable_files.emplace_back(file);
+        else immutable_files.emplace_back(file);
     }
-    std::cout << "Subdirectories:" << std::endl;
-    for (Directory dir : dir.subdirs) {
-        std::cout << dir << std::endl;
+    // Recurse into subdirectories
+    for (const auto& subdir : dir.subdirs) {
+        collect_files(subdir, immutable_files, mutable_files);
+    }
+}
+
+inline std::ostream& operator<<(std::ostream& os, const Directory& dir)
+{
+    std::vector<File> immutable_files;
+    std::vector<File> mutable_files;
+
+    // Collect files from the entire directory tree
+    collect_files(dir, immutable_files, mutable_files);
+    os << "Directory: " << dir.name << std::endl;
+    os << "Immutable Files:\n" << std::endl;
+    for (const auto& file : immutable_files) {
+        os << file << std::endl;
+    }
+    os << "Mutable Files:\n" << std::endl;
+    for (const auto& file : mutable_files) {
+        os << file << std::endl;
     }
     return os;
 }

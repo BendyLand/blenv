@@ -35,14 +35,9 @@ public:
 
 std::vector<std::string> get_mutable_files(int argc, char** argv);
 
-inline std::ostream& operator<<(std::ostream& os, const File file)
+inline std::ostream& operator<<(std::ostream& os, const File& file)
 {
-    std::string full_path;
-#if OS_UNIX_LIKE_DEFINED
-    full_path = file.path + "/" + file.name;
-#else
-    full_path = file.path + "\\" + file.name;
-#endif
+    std::string full_path = (fs::path(file.path) / file.name).string();
     std::string mut = file.is_mutable ? "mutable" : "immutable";
     std::cout << "Key: " << file.key << " (" << mut << ")" << std::endl;
     std::cout << "Path: " << full_path << " (" << file.size << ")" << std::endl;
